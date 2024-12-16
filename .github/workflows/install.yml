@@ -50,7 +50,7 @@ jobs:
 
       - name: Create a raw disk image
         run: |
-          dd if=/dev/zero of=disk.img bs=1M count=15360  # Create a 15GB disk image
+          dd if=/dev/zero of=disk.img bs=1M count=20480  # Create a 20 GB disk image. Increase it if the workflow ends with no space left error during test installation
           loop_device=$(sudo losetup --find --partscan --show disk.img)
           losetup -d "$loop_device"
           echo "Loop Device: $loop_device"
