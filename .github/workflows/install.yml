@@ -62,6 +62,10 @@ jobs:
           parted -s "$loop_device" -- mkpart primary btrfs 512MiB 100%
           sed -i "s#/dev/loop0#$loop_device#g" ${{ matrix.config_installer.config_file }}
 
+          # Refresh the loop device and use udevadm to map partitions
+          sudo partprobe "$loop_device" || sudo losetup -c "$loop_device"
+          sudo udevadm settle
+
           echo "System Disk Layout:"
           lsblk
           ls -la /dev/loop3*
