@@ -63,7 +63,7 @@ jobs:
           sed -i "s#/dev/loop0#$loop_device#g" ${{ matrix.config_installer.config_file }}
 
           # Use kpartx to create partition mappings
-          #sudo kpartx -a -v "$loop_device"
+          sudo kpartx -a -v "$loop_device"
 
           echo "System Disk Layout:"
           lsblk
