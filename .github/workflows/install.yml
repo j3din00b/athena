@@ -51,8 +51,8 @@ jobs:
       - name: Create a raw disk image
         run: |
           dd if=/dev/zero of=disk.img bs=1M count=20480  # Create a 20 GB disk image. Increase it if the workflow ends with no space left error during test installation
-          loop_device=$(sudo losetup --find --partscan --show disk.img) # Commented because it is errouneously finding /dev/loop0 as first available loopback device
-          #loop_device="/dev/loop3"
+          #loop_device=$(sudo losetup --find --partscan --show disk.img) # Commented because it is errouneously finding /dev/loop0 as first available loopback device
+          loop_device="/dev/loop3"
           sudo losetup -d "$loop_device"
           echo "Loop Device: $loop_device"
           sudo losetup "$loop_device" disk.img  # Attach the file as a loopback device
