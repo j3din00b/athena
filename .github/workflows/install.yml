@@ -31,7 +31,7 @@ jobs:
 
     steps:
       - name: Install dependencies
-        run: pacman -Syyu --noconfirm aegis grub mkinitcpio jq
+        run: pacman -Syyu --noconfirm aegis grub mkinitcpio jq multipath-tools
 
       - name: Retrieve install configuration
         run: curl -O https://raw.githubusercontent.com/Athena-OS/athena/refs/heads/main/tests/${{ matrix.config_installer.config_file }}
@@ -62,13 +62,13 @@ jobs:
           parted -s "$loop_device" -- mkpart primary btrfs 512MiB 100%
           sed -i "s#/dev/loop0#$loop_device#g" ${{ matrix.config_installer.config_file }}
 
-          # Refresh the loop device and use udevadm to map partitions
-          sudo partprobe "$loop_device" || sudo losetup -c "$loop_device"
-          sudo udevadm settle
+          # Use kpartx to create partition mappings
+          #sudo kpartx -a -v "$loop_device"
 
           echo "System Disk Layout:"
           lsblk
           ls -la /dev/loop3*
+          find /dev -type b -name 'loop*'
           ls -l /dev/mapper/loop*
         
       - name: Run the installer
