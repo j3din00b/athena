@@ -64,6 +64,7 @@ jobs:
           
           # Refresh the loop device partition table
           sudo partprobe "$loop_device" || sudo losetup -c "$loop_device"
+          sudo kpartx -a -v "$loop_device"
           sudo udevadm settle
           
           #mknod "${loop_device}p1" b 259 0  # Manually create because hosted-runner kernel does not refresh /dev
