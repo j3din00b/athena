@@ -31,7 +31,7 @@ jobs:
 
     steps:
       - name: Install dependencies
-        run: pacman -Syyu --noconfirm aegis grub mkinitcpio jq
+        run: pacman -Syyu --noconfirm aegis grub mkinitcpio jq multipath-tools
 
       - name: Retrieve install configuration
         run: curl -O https://raw.githubusercontent.com/Athena-OS/athena/refs/heads/main/tests/${{ matrix.config_installer.config_file }}
@@ -50,7 +50,7 @@ jobs:
 
       - name: Create a raw disk image
         run: |
-          dd if=/dev/zero of=disk.img bs=1M count=20480  # Create a 20 GB disk image. Increase it if the workflow ends with no space left error during test installation
+          dd if=/dev/zero of=disk.img bs=1M count=20480  # Create a 20 GB disk image.
           #loop_device=$(sudo losetup --find --partscan --show disk.img) # https://github.com/orgs/community/discussions/147257
           #sudo losetup -d "$loop_device"
           loop_device="/dev/loop3"
