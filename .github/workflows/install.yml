@@ -51,7 +51,8 @@ jobs:
       - name: Create a raw disk image
         run: |
           dd if=/dev/zero of=disk.img bs=1M count=20480  # Create a 20 GB disk image.
-          #loop_device=$(sudo losetup --find --partscan --show disk.img) # https://github.com/orgs/community/discussions/147257
+          loop_device=$(sudo losetup --find --partscan --show disk.img) # https://github.com/orgs/community/discussions/147257
+          echo "Auto Loop Device: $loop_device"
           #sudo losetup -d "$loop_device"
           loop_device="/dev/loop3"
           echo "Loop Device: $loop_device"
@@ -62,8 +63,8 @@ jobs:
           parted -s "$loop_device" -- mkpart primary btrfs 512MiB 100%
           sed -i "s#/dev/loop0#$loop_device#g" ${{ matrix.config_installer.config_file }}
 
-          # Use kpartx to create partition mappings
-          sudo kpartx -a -v "$loop_device"
+          sudo partprobe "$loop_device" || sudo losetup -c "$loop_device"
+          sudo udevadm settle
 
           echo "System Disk Layout:"
           lsblk
