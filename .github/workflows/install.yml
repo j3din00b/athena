@@ -64,14 +64,12 @@ jobs:
 
       - name: Prepare the disk
         run: |
-          echo "Checking for processes using $TARGET_DISK..."
-          lsof $TARGET_DISK && echo "Stopping processes..."
           echo "Unmounting all partitions on $TARGET_DISK..."
           for PART in $(lsblk -ln -o NAME $TARGET_DISK | tail -n +2); do
-            umount /dev/$PART || true
+            umount /dev/$PART
           done
-          echo "Checking for processes using $TARGET_DISK..."
-          lsof $TARGET_DISK && echo "Stopping processes..." && exit 1
+          swapon --show
+          swapoff $(swapon --show=NAME --noheadings)
           echo "Wiping filesystem signatures and partition table on $TARGET_DISK..."
           wipefs -a $TARGET_DISK
         
