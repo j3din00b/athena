@@ -65,6 +65,7 @@ jobs:
 
           echo "System Disk Layout:"
           lsblk
+          df -h
           ls -la "$loop_device"*
         
       - name: Run the installer
