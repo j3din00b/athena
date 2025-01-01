@@ -65,7 +65,8 @@ jobs:
 
           echo "System Disk Layout:"
           lsblk
-          df -h
+          mount | grep "^/dev"
+          df -Th
           ls -la "$loop_device"*
         
       - name: Run the installer
