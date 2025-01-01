@@ -31,7 +31,7 @@ jobs:
 
     steps:
       - name: Install dependencies
-        run: pacman -Syyu --noconfirm aegis grub mkinitcpio jq
+        run: pacman -Syyu --noconfirm aegis grub mkinitcpio jq lsof
 
       - name: Retrieve install configuration
         run: curl -O https://raw.githubusercontent.com/Athena-OS/athena/refs/heads/main/tests/${{ matrix.config_installer.config_file }}
