@@ -31,7 +31,7 @@ jobs:
 
     steps:
       - name: Install dependencies
-        run: pacman -Syyu --noconfirm aegis grub mkinitcpio jq multipath-tools
+        run: pacman -Syyu --noconfirm aegis grub mkinitcpio jq
 
       - name: Retrieve install configuration
         run: curl -O https://raw.githubusercontent.com/Athena-OS/athena/refs/heads/main/tests/${{ matrix.config_installer.config_file }}
@@ -64,12 +64,16 @@ jobs:
 
       - name: Prepare the disk
         run: |
+          echo "Checking for processes using $TARGET_DISK..."
+          lsof $TARGET_DISK && echo "Stopping processes..."
           echo "Unmounting all partitions on $TARGET_DISK..."
           for PART in $(lsblk -ln -o NAME $TARGET_DISK | tail -n +2); do
-            umount /dev/$PART 2>/dev/null || true
+            umount /dev/$PART || true
           done
+          echo "Checking for processes using $TARGET_DISK..."
+          lsof $TARGET_DISK && echo "Stopping processes..." && exit 1
           echo "Wiping filesystem signatures and partition table on $TARGET_DISK..."
-          sudo wipefs -a $TARGET_DISK
+          wipefs -a $TARGET_DISK
         
       - name: Run the installer
         run: ${{ matrix.config_installer.installer }} config ${{ matrix.config_installer.config_file }}
