@@ -66,6 +66,8 @@ jobs:
           echo "System Disk Layout:"
           lsblk
           mount | grep "^/dev"
+          CONTAINER_DISK=$(df /__w | awk 'NR==2 {print $1}')
+          echo "$CONTAINER_DISK"
           df -Th
           #ls -la "$loop_device"*
           sudo mkdir -p /mnt/sda1
