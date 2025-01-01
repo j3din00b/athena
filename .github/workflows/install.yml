@@ -38,13 +38,26 @@ jobs:
 
       - name: Modify install configuration
         run: |
-          jq --arg desktop "${{ matrix.config_installer.desktop }}" \
+          ROOT_DEVICE=$(mount | grep 'on / ' | awk '{print $1}')
+          echo "$ROOT_DEVICE"
+          if [[ "$ROOT_DEVICE" == *"sda"* ]]; then
+              echo "Root device is on sda. Using sdb for test operations."
+              TARGET_DISK="/dev/sdb"
+          elif [[ "$ROOT_DEVICE" == *"sdb"* ]]; then
+              echo "Root device is on sdb. Using sda for test operations."
+              TARGET_DISK="/dev/sda"
+          else
+              echo "Root device is not sda or sdb. Unable to determine free disk."
+              exit 1
+          fi
+          jq --arg target_disk "$TARGET_DISK" \
+             --arg desktop "${{ matrix.config_installer.desktop }}" \
              --arg displaymanager "${{ matrix.config_installer.displaymanager }}" \
              --arg theme "${{ matrix.config_installer.theme || '' }}" \
              --arg terminal "${{ matrix.config_installer.terminal || '' }}" \
              --arg shell "${{ matrix.config_installer.shell || '' }}" \
              --arg browser "${{ matrix.config_installer.browser || '' }}" \
-             '.desktop = $desktop | .displaymanager = $displaymanager | .theme = $theme | .terminal = $terminal | .shell = $shell | .browser = $browser' \
+             '.partition.device = $target_disk | .bootloader.location = $target_disk | .desktop = $desktop | .displaymanager = $displaymanager | .theme = $theme | .terminal = $terminal | .shell = $shell | .browser = $browser' \
              ${{ matrix.config_installer.config_file }} > modified_${{ matrix.config_installer.config_file }}
           mv modified_${{ matrix.config_installer.config_file }} ${{ matrix.config_installer.config_file }}
 
@@ -66,18 +79,16 @@ jobs:
           echo "System Disk Layout:"
           lsblk
           mount | grep "^/dev"
-          CONTAINER_DISK=$(df /__w | awk 'NR==2 {print $1}')
-          echo "$CONTAINER_DISK"
           df -Th
           #ls -la "$loop_device"*
-          sudo mkdir -p /mnt/sda1
-          sudo mount /dev/sda1 /mnt/sda1
-          df -Th
-          ls -la /mnt/sda1
-          sudo mkdir -p /mnt/sdb1
-          sudo mount /dev/sdb1 /mnt/sdb1
-          df -Th
-          ls -la /mnt/sdb1
+          #sudo mkdir -p /mnt/sda1
+          #sudo mount /dev/sda1 /mnt/sda1
+          #df -Th
+          #ls -la /mnt/sda1
+          #sudo mkdir -p /mnt/sdb1
+          #sudo mount /dev/sdb1 /mnt/sdb1
+          #df -Th
+          #ls -la /mnt/sdb1
         
       - name: Run the installer
         run: ${{ matrix.config_installer.installer }} config ${{ matrix.config_installer.config_file }}
