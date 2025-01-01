@@ -68,6 +68,9 @@ jobs:
           mount | grep "^/dev"
           df -Th
           ls -la "$loop_device"*
+          sudo mkdir -p /mnt/sda1
+          sudo mount /dev/sda1 /mnt/sda1
+          df -Th
         
       - name: Run the installer
         run: ${{ matrix.config_installer.installer }} config ${{ matrix.config_installer.config_file }}
