@@ -71,6 +71,7 @@ jobs:
           sudo mkdir -p /mnt/sda1
           sudo mount /dev/sda1 /mnt/sda1
           df -Th
+          ls -la /mnt/sda1
         
       - name: Run the installer
         run: ${{ matrix.config_installer.installer }} config ${{ matrix.config_installer.config_file }}
