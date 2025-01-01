@@ -68,10 +68,8 @@ jobs:
           for PART in $(lsblk -ln -o NAME $TARGET_DISK | tail -n +2); do
             umount /dev/$PART || true
           done
-          swapon --show
-          swapoff $(swapon --show=NAME --noheadings)
           echo "Wiping filesystem signatures and partition table on $TARGET_DISK..."
-          wipefs -a $TARGET_DISK
+          wipefs -a --force $TARGET_DISK
         
       - name: Run the installer
         run: ${{ matrix.config_installer.installer }} config ${{ matrix.config_installer.config_file }}
