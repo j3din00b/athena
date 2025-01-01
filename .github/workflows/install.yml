@@ -39,7 +39,6 @@ jobs:
       - name: Modify install configuration
         run: |
           ROOT_DEVICE=$(mount | grep "^/dev" | awk '{print $1}')
-          echo "$ROOT_DEVICE"
           # Sometimes GitHub-hosted runners could use sda disk to host their files and other times sdb. 
           if [[ "$ROOT_DEVICE" == *"sda"* ]]; then
               echo "Root device is on sda. Using sdb for test operations."
@@ -51,6 +50,7 @@ jobs:
               echo "Root device is not sda or sdb. Unable to determine free disk."
               exit 1
           fi
+          echo "TARGET_DISK=$TARGET_DISK" >> $GITHUB_ENV  # Set environment variable
           jq --arg target_disk "$TARGET_DISK" \
              --arg desktop "${{ matrix.config_installer.desktop }}" \
              --arg displaymanager "${{ matrix.config_installer.displaymanager }}" \
@@ -62,34 +62,14 @@ jobs:
              ${{ matrix.config_installer.config_file }} > modified_${{ matrix.config_installer.config_file }}
           mv modified_${{ matrix.config_installer.config_file }} ${{ matrix.config_installer.config_file }}
 
-      - name: Create a raw disk image
+      - name: Prepare the disk
         run: |
-          #dd if=/dev/zero of=disk.img bs=1M count=15360  # Create a 15GB disk image
-          #loop_device=$(sudo losetup --find --partscan --show disk.img)
-          #losetup -d "$loop_device"
-          #echo "Loop Device: $loop_device"
-          #losetup "$loop_device" disk.img  # Attach the file as a loopback device
-          #parted -s "$loop_device" -- mklabel gpt
-          #parted -s "$loop_device" -- mkpart ESP fat32 1MiB 512MiB
-          #parted -s "$loop_device" -- set 1 esp on
-          #parted -s "$loop_device" -- mkpart primary btrfs 512MiB 100%
-          #sed -i "s#/dev/loop0#$loop_device#g" arch.json
-          #mknod "${loop_device}p1" b 259 0  # Manually create because hosted-runner kernel does not refresh /dev
-          #mknod "${loop_device}p2" b 259 1
-
-          echo "System Disk Layout:"
-          lsblk
-          mount | grep "^/dev"
-          df -Th
-          #ls -la "$loop_device"*
-          #sudo mkdir -p /mnt/sda1
-          #sudo mount /dev/sda1 /mnt/sda1
-          #df -Th
-          #ls -la /mnt/sda1
-          #sudo mkdir -p /mnt/sdb1
-          #sudo mount /dev/sdb1 /mnt/sdb1
-          #df -Th
-          #ls -la /mnt/sdb1
+          echo "Unmounting all partitions on $TARGET_DISK..."
+          for PART in $(lsblk -ln -o NAME $TARGET_DISK | tail -n +2); do
+            umount /dev/$PART 2>/dev/null || true
+          done
+          echo "Wiping filesystem signatures and partition table on $TARGET_DISK..."
+          sudo wipefs -a $TARGET_DISK
         
       - name: Run the installer
         run: ${{ matrix.config_installer.installer }} config ${{ matrix.config_installer.config_file }}
