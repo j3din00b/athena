@@ -38,8 +38,9 @@ jobs:
 
       - name: Modify install configuration
         run: |
-          ROOT_DEVICE=$(mount | grep 'on / ' | awk '{print $1}')
+          ROOT_DEVICE=$(mount | grep "^/dev" | awk '{print $1}')
           echo "$ROOT_DEVICE"
+          # Sometimes GitHub-hosted runners could use sda disk to host their files and other times sdb. 
           if [[ "$ROOT_DEVICE" == *"sda"* ]]; then
               echo "Root device is on sda. Using sdb for test operations."
               TARGET_DISK="/dev/sdb"
