@@ -31,7 +31,7 @@ jobs:
 
     steps:
       - name: Install dependencies
-        run: pacman -Syyu --noconfirm aegis grub mkinitcpio jq lsof
+        run: pacman -Syyu --noconfirm aegis grub mkinitcpio jq
 
       - name: Retrieve install configuration
         run: curl -O https://raw.githubusercontent.com/Athena-OS/athena/refs/heads/main/tests/${{ matrix.config_installer.config_file }}
@@ -61,15 +61,6 @@ jobs:
              '.partition.device = $target_disk | .bootloader.location = $target_disk | .desktop = $desktop | .displaymanager = $displaymanager | .theme = $theme | .terminal = $terminal | .shell = $shell | .browser = $browser' \
              ${{ matrix.config_installer.config_file }} > modified_${{ matrix.config_installer.config_file }}
           mv modified_${{ matrix.config_installer.config_file }} ${{ matrix.config_installer.config_file }}
-
-      - name: Prepare the disk
-        run: |
-          echo "Unmounting all partitions on $TARGET_DISK..."
-          for PART in $(lsblk -ln -o NAME $TARGET_DISK | tail -n +2); do
-            umount /dev/$PART || true
-          done
-          echo "Wiping filesystem signatures and partition table on $TARGET_DISK..."
-          wipefs -a --force $TARGET_DISK
         
       - name: Run the installer
         run: ${{ matrix.config_installer.installer }} config ${{ matrix.config_installer.config_file }}
