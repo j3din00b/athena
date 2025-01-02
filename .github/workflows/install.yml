@@ -56,11 +56,16 @@ jobs:
           lsblk $TARGET_DISK
           fdisk -l $TARGET_DISK
           mount
-          swapon --show
-          swapoff /mnt/swapfile
-          umount /mnt/swapfile || true
           fuser -v $TARGET_DISK
           partprobe $TARGET_DISK
+          ls -la /mnt
+          ls -la /root
+          ls -la /tmp
+          ls -la /
+          mount /dev/sdb1 /mnt
+          ls -la /mnt
+          rm -rf /mnt/*
+          parted -s $TARGET_DISK -- mklabel gpt
           jq --arg target_disk "$TARGET_DISK" \
              --arg desktop "${{ matrix.config_installer.desktop }}" \
              --arg displaymanager "${{ matrix.config_installer.displaymanager }}" \
