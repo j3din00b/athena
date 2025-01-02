@@ -67,7 +67,7 @@ jobs:
           ls -la /mnt
           umount ${TARGET_DISK}1
           #parted -s $TARGET_DISK -- mklabel msdos
-          wipefs -a $TARGET_DISK
+          wipefs $TARGET_DISK
           parted $TARGET_DISK align-check optimal 1
           parted -s $TARGET_DISK -- mkpart primary ext4 1MiB 512MiB align optimal
           parted -s $TARGET_DISK -- set 1 boot on
