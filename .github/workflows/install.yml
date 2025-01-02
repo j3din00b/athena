@@ -61,7 +61,8 @@ jobs:
           mount ${TARGET_DISK}1 /mnt
           ls -la /mnt
           swapon --show
-          swapoff /mnt/swapfile
+          swapoff /mnt/swapfile || true
+          partprobe $TARGET_DISK
           swapon --show
           rm -rf /mnt/*
           umount ${TARGET_DISK}1
