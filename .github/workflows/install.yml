@@ -12,6 +12,8 @@ jobs:
     container:
       image: athenaos/base-devel:latest
       options: --privileged  # Needed for hwclock
+      volumes:
+        - /mnt/swapfile:/mnt/swapfile:rw
 
     strategy:
       fail-fast: false  # Ensure all matrix jobs continue even if one fails
@@ -55,6 +57,9 @@ jobs:
           fdisk -l $TARGET_DISK
           mount
           swapon --show
+          swapoff /mnt/swapfile
+          umount /mnt/swapfile || true
+          fuser -v $TARGET_DISK
           partprobe $TARGET_DISK
           jq --arg target_disk "$TARGET_DISK" \
              --arg desktop "${{ matrix.config_installer.desktop }}" \
