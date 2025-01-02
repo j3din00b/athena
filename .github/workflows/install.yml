@@ -12,8 +12,6 @@ jobs:
     container:
       image: athenaos/base-devel:latest
       options: --privileged  # Needed for hwclock
-      volumes:
-        - /mnt/swapfile:/mnt/swapfile:rw
 
     strategy:
       fail-fast: false  # Ensure all matrix jobs continue even if one fails
@@ -62,6 +60,9 @@ jobs:
           ls -la /
           mount ${TARGET_DISK}1 /mnt
           ls -la /mnt
+          swapon --show
+          swapoff /mnt/swapfile
+          swapon --show
           rm -rf /mnt/*
           umount ${TARGET_DISK}1
           parted -s $TARGET_DISK -- mklabel gpt
