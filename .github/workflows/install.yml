@@ -51,6 +51,11 @@ jobs:
               exit 1
           fi
           echo "TARGET_DISK=$TARGET_DISK" >> $GITHUB_ENV  # Set environment variable
+          lsblk $TARGET_DISK
+          fdisk -l $TARGET_DISK
+          mount
+          swapon --show
+          partprobe $TARGET_DISK
           jq --arg target_disk "$TARGET_DISK" \
              --arg desktop "${{ matrix.config_installer.desktop }}" \
              --arg displaymanager "${{ matrix.config_installer.displaymanager }}" \
