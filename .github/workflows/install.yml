@@ -67,6 +67,10 @@ jobs:
           ls -la /mnt
           umount ${TARGET_DISK}1
           #parted -s $TARGET_DISK -- mklabel gpt
+          parted -s $TARGET_DISK -- mkpart ESP fat32 -512MiB 100%
+          parted -s $TARGET_DISK -- set 1 esp on
+          lsblk
+          fdisk -l $TARGET_DISK
           jq --arg target_disk "$TARGET_DISK" \
              --arg desktop "${{ matrix.config_installer.desktop }}" \
              --arg displaymanager "${{ matrix.config_installer.displaymanager }}" \
@@ -74,7 +78,7 @@ jobs:
              --arg terminal "${{ matrix.config_installer.terminal || '' }}" \
              --arg shell "${{ matrix.config_installer.shell || '' }}" \
              --arg browser "${{ matrix.config_installer.browser || '' }}" \
-             '.partition.device = $target_disk | .bootloader.location = $target_disk | .desktop = $desktop | .displaymanager = $displaymanager | .theme = $theme | .terminal = $terminal | .shell = $shell | .browser = $browser' \
+             '.partition.device = $target_disk | .partition.device = "Replace" | .partition.partitions = ["/mnt/:${target_disk}1:btrfs:false", "/mnt/boot:${target_disk}2:vfat:false"] | .bootloader.location = $target_disk | .desktop = $desktop | .displaymanager = $displaymanager | .theme = $theme | .terminal = $terminal | .shell = $shell | .browser = $browser' \
              ${{ matrix.config_installer.config_file }} > modified_${{ matrix.config_installer.config_file }}
           mv modified_${{ matrix.config_installer.config_file }} ${{ matrix.config_installer.config_file }}
         
