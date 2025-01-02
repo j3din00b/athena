@@ -66,8 +66,8 @@ jobs:
           rm -rf /mnt/*
           ls -la /mnt
           umount ${TARGET_DISK}1
-          #parted -s $TARGET_DISK -- mklabel msdos
-          wipefs $TARGET_DISK
+          parted -s $TARGET_DISK -- mklabel msdos
+          wipefs -a $TARGET_DISK
           parted -s $TARGET_DISK -- mkpart primary ext4 1MiB 512MiB
           parted -s $TARGET_DISK -- set 1 boot on
           parted -s $TARGET_DISK -- mkpart primary btrfs 512MiB 100%
