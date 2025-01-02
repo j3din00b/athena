@@ -63,8 +63,9 @@ jobs:
           swapon --show
           sudo swapoff /mnt/swapfile || true
           echo "CIAO"
-          sudo partprobe $TARGET_DISK
+          #sudo partprobe $TARGET_DISK
           swapon --show
+          echo "CIAO2"
           rm -rf /mnt/*
           umount ${TARGET_DISK}1
           parted -s $TARGET_DISK -- mklabel gpt
