@@ -68,9 +68,10 @@ jobs:
           umount ${TARGET_DISK}1
           #parted -s $TARGET_DISK -- mklabel msdos
           wipefs -a $TARGET_DISK
-          parted -s $TARGET_DISK -- mkpart primary ext4 1MiB 512MiB
+          parted $TARGET_DISK align-check optimal 1
+          parted -s $TARGET_DISK -- mkpart primary ext4 1MiB 512MiB align optimal
           parted -s $TARGET_DISK -- set 1 boot on
-          parted -s $TARGET_DISK -- mkpart primary btrfs 512MiB 100%
+          parted -s $TARGET_DISK -- mkpart primary btrfs 512MiB 100% align optimal
           mkfs.ext4 -F ${TARGET_DISK}1
           mkfs.btrfs -L athenaos -f ${TARGET_DISK}2
           lsblk
